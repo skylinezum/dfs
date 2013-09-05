@@ -50,10 +50,9 @@
         android:id="@+id/buttonStart"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/voltageLabel"
-        android:layout_alignBottom="@+id/voltageLabel"
-        android:layout_marginLeft="130dp"
-        android:layout_toRightOf="@+id/voltageLabel"
+        android:layout_alignLeft="@+id/powerBiasLab"
+        android:layout_below="@+id/powerBiasLab"
+        android:layout_marginTop="46dp"
         android:text="start" />
 
     <Button
@@ -61,7 +60,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/buttonStart"
-        android:layout_below="@+id/voltage"
+        android:layout_below="@+id/buttonStart"
+        android:layout_marginTop="32dp"
         android:text="stop" />
 
 </RelativeLayout>
