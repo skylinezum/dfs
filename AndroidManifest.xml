@@ -3,25 +3,25 @@
     package="com.example.dfs"
     android:versionCode="1"
     android:versionName="1.0" >
-
-    <uses-sdk
-        android:minSdkVersion="8"
-        android:targetSdkVersion="17" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS" />
+    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
+    
+    <uses-sdk android:minSdkVersion="10" />
 
     <application
-        android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
-        android:label="@string/app_name"
-        android:theme="@style/AppTheme" >
+        android:label="@string/app_name" android:debuggable="true">
         <activity
-            android:name="com.example.dfs.MainActivity"
-            android:label="@string/app_name" >
-            <intent-filter>
+            android:label="@string/app_name"
+            android:name=".DfsActivity" >
+            <intent-filter >
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <service android:enabled="true" android:name=".DfsService" />
     </application>
 
 </manifest>

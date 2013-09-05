@@ -12,73 +12,95 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.widget.Toast;
 
-public class DfsService extends Service {
+public class DfsService extends Service{
 
-	private double B = 0.5;
-	private double a = 0.5;
-	private static long Ua1;
-	private long Ua2;
-	private long Uave;
-	private long res;
-	private Timer myTimer = null;
-
-	private long maxFreq;
-	private long curFreq;
-	private long threshold;
-	private long currUsage;
-	private float temper;
-
+	 private static final String VOLTAGE_FILES =  "/sys/class/power_supply/battery/voltage_now";
+	 private static final String POWERBIAS_FILES =  "/sys/devices/system/cpu/cpu0/cpufreq/ondemand/powersave_bias";
+	 private static final String THRESHOLD_FILES =  "/sys/devices/system/cpu/cpu0/cpufreq/ondemand/up_threshold";
+	 private static final String MAXFREQ_FILES =  "/sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq";
+	 private static final String CURFREQ_FILES =  "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq";
+	
+	 String voltageFile;
+	 String powerBiasFile;
+	 String thresholdFile;
+	 String maxFreqFile;
+	 String curFreqFile;
+	 
+	 Boolean serviceFlag = true;
+	 double B = 0.9;
+	 double a = 0.1;
+	 static long Ua1;
+	 long Ua2;
+	 long Uave;
+	 long res;
+	 Timer myTimer = null;
+	 
+	 
+		long maxFreq; 
+		long curFreq;
+		long thres;
+		long currUsage;
+		float temper;
+	
 	@Override
-	public IBinder onBind(Intent i) {
+	public IBinder onBind(Intent arg0) {
+		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public void onDestroy() {
-		Toast.makeText(this, "CPU Monitoring Ended", Toast.LENGTH_LONG).show();
-		myTimer.cancel();
-		try {
-			File powerbiasFile = new File(MainActivity.POWERBIAS_FILE);
-			BufferedWriter out = new BufferedWriter(new FileWriter(
-					powerbiasFile));
-			out.write("0");
-			out.close();
-		} catch (IOException e) {}
+	public void onCreate() {
+		if(new File(VOLTAGE_FILES).exists()) voltageFile = VOLTAGE_FILES;         
+        if(new File(POWERBIAS_FILES).exists()) powerBiasFile = POWERBIAS_FILES;         
+        if(new File(THRESHOLD_FILES).exists())thresholdFile = THRESHOLD_FILES;
+        if(new File(MAXFREQ_FILES).exists()) maxFreqFile = MAXFREQ_FILES;
+        if(new File(CURFREQ_FILES).exists()) curFreqFile = CURFREQ_FILES;       
 	}
-
+	
 	@Override
-	public int onStartCommand(Intent intent, int flags, int startId) {
-		Toast.makeText(this, "CPU Monitoring Started", Toast.LENGTH_LONG)
-				.show();
+	public void onDestroy() {
+		Toast.makeText(this, "Service ended", Toast.LENGTH_LONG).show();
+		myTimer.cancel();
+		serviceFlag = false;
+	}
+	
+	@Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+		Toast.makeText(this, "My Service Started", Toast.LENGTH_LONG).show();	
 		Ua1 = 100;
-		maxFreq = MainActivity.readInput(MainActivity.MAXFREQ_FILE);
-		myTimer = new Timer();
-		myTimer.scheduleAtFixedRate(new TimerTask() {
-			@Override
-			public void run() {
-				maxFreq = MainActivity.readInput(MainActivity.MAXFREQ_FILE);
-				curFreq = MainActivity.readInput(MainActivity.CURFREQ_FILE);
-				threshold = MainActivity.readInput(MainActivity.THRESHOLD_FILE);
-				currUsage = (long) MainActivity.readUsage();
-				temper = 0;
-				Ua2 = (long) ((long) ((a * Ua1) + (B * currUsage)) / (B + a));
-				Ua1 = Ua2;
-				Uave = (maxFreq * Ua2) / curFreq;
-				if (Uave < threshold) {
-					temper = (float) (threshold - Uave) / threshold;
-					res = (long) (temper * 1000F);
-				} else
-					res = 0;
-				try {
-					File powerbiasFile = new File(MainActivity.POWERBIAS_FILE);
-					BufferedWriter out = new BufferedWriter(new FileWriter(
-							powerbiasFile));
-					out.write(String.valueOf(res));
-					out.close();
-				} catch (Exception e) {}
-			}
-		}, 1000, 100);
-		// TODO where does START_STICKY come from?
+        myTimer = new Timer();
+        myTimer.scheduleAtFixedRate(
+            new TimerTask()
+             {
+                        @Override
+                        public void run()
+                        {
+                    		maxFreq=  DfsActivity.readInput(maxFreqFile);
+                    		curFreq =  DfsActivity.readInput(curFreqFile);
+                    		thres =  DfsActivity.readInput(thresholdFile);
+                    		currUsage= (long) DfsActivity.readUsage();
+                    		temper = 0;
+                    		Ua2 = (long) ((long)  (a*Ua1+B*currUsage)/(B+a));
+                    		Ua1 =Ua2;
+                    		Uave = (maxFreq*Ua2 )/curFreq;
+                    		if(Uave < thres ){
+                    			temper = (float)(thres -Uave)/thres;
+                    			res  = (long) ((float)temper*1000);
+                    		} else{res = 0;}
+                    		try {
+                    			File root = new File(powerBiasFile)	;
+                    			if (root.canWrite()){
+                    				FileWriter gpxwriter = new FileWriter(root);
+                    				BufferedWriter out = new BufferedWriter(gpxwriter);
+                    				out.write(String.valueOf(res));
+                    				out.close();
+                    			}
+                    		} catch (IOException e) {}			
+                        }
+             },10,10);
+
+        serviceFlag = true;
 		return START_STICKY;
 	}
+	
 }
