@@ -20,10 +20,10 @@ import android.widget.TextView;
 public class DfsActivity extends Activity {
 	
 	 private static final String VOLTAGE_FILES =  "/sys/class/power_supply/battery/voltage_now";
-	 private static final String POWERBIAS_FILES =  "/sys/devices/system/cpu/cpu0/cpufreq/ondemand/powersave_bias";
-	 private static final String THRESHOLD_FILES =  "/sys/devices/system/cpu/cpu0/cpufreq/ondemand/up_threshold";
-	 private static final String MAXFREQ_FILES =  "/sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq";
-	 private static final String CURFREQ_FILES =  "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq";
+	 private static final String POWERBIAS_FILES =  "/sys/devices/system/cpu/cpufreq/ondemand/powersave_bias";
+	 private static final String THRESHOLD_FILES =  "/sys/devices/system/cpu/cpufreq/ondemand/up_threshold";
+	 private static final String MAXFREQ_FILES =  "/sys/devices/system/cpu/cpufreq/scaling_max_freq";
+	 private static final String CURFREQ_FILES =  "/sys/devices/system/cpu/cpufreq/scaling_cur_freq";
 	 private static final String CURRENT_FILES =  "/sys/class/power_supply/battery/current_now";
 
 	 
@@ -107,7 +107,7 @@ public class DfsActivity extends Activity {
         });
         ProcessBuilder cmd;
         try{
-            String[] args = {"chmod", "777", "/sys/devices/system/cpu/cpu0/cpufreq/ondemand/powersave_bias"};
+            String[] args = {"chmod", "777", "/sys/devices/system/cpu/cpufreq/ondemand/powersave_bias"};
             cmd = new ProcessBuilder(args);
             cmd.start();
            } catch(IOException ex){
